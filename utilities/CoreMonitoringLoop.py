@@ -57,18 +57,3 @@ if (__name__ == "__main__"):
         config_dict = json.load(f)
     
     CoreMonitoringLoop.execute_monitoring_loop()
-
-
-import asyncio, praw, os
-reddit_api_object = praw.Reddit(
-    client_id       = os.getenv("SUBREDDIT_CLIENT"),
-    client_secret   = os.getenv("SUBREDDIT_SECRET"),
-    user_agent      = "myscript by u/bboycage",
-    username        = "u/bboycage",
-    check_for_async = True
-)
- 
-for thread in threads_list:
-    print(thread.title)
-
-threads_list = reversed(list(reddit_api_object.subreddit("programming").new(limit = 1)))
