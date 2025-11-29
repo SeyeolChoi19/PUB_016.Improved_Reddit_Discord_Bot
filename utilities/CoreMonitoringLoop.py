@@ -36,9 +36,8 @@ class CoreMonitoringLoop:
 
         while True:
             subreddit_threads = await self.__get_new_threads()
-            new_thread_signal = any(subreddit_threads)
 
-            if (new_thread_signal):
+            if (any(subreddit_threads)):
                 for sub_dict in subreddit_threads:
                     if (sub_dict):
                         new_threads = await event_loop_object.run_in_executor(None, self.reddit_api_object.get_latest_threads, sub_dict["subreddit"][2:], self.sort_method, self.memory_queue, 30)
@@ -57,18 +56,3 @@ if (__name__ == "__main__"):
         config_dict = json.load(f)
     
     CoreMonitoringLoop.execute_monitoring_loop()
-
-
-import asyncio, praw, os
-reddit_api_object = praw.Reddit(
-    client_id       = os.getenv("SUBREDDIT_CLIENT"),
-    client_secret   = os.getenv("SUBREDDIT_SECRET"),
-    user_agent      = "myscript by u/bboycage",
-    username        = "u/bboycage",
-    check_for_async = True
-)
- 
-for thread in threads_list:
-    print(thread.title)
-
-threads_list = reversed(list(reddit_api_object.subreddit("programming").new(limit = 1)))
