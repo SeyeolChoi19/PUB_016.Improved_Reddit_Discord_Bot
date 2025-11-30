@@ -31,7 +31,7 @@ class PrawInterface:
                     "thread_author"  : thread.author.name
                 }
             
-            if (fetch_size > 1):
+            if ((fetch_size > 1) and (thread.permalink not in memory_bank)):
                 memory_bank.append(thread.permalink)
 
         return results_dictionary 
