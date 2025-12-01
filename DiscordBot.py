@@ -14,3 +14,4 @@ class DiscordBot:
         self.__discord_intents                 = discord.Intents.default()
         self.__discord_intents.message_content = True
         self.discord_client                    = discord.Client(intents = self.__discord_intents)
+
