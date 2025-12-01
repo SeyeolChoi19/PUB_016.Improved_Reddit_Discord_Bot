@@ -14,19 +14,19 @@ class CoreMonitoringLoop:
         self.current_date    = dt.datetime.now().strftime("%Y-%m-%d")
         self.data_log_object = logger_initialization(f"{self.current_date} Reddit Monitoring Bot.log", "Reddit monitoring operations")
 
-    def core_monitoring_loop_settings_method(self, sort_method: str, subreddits_list: list[str], memory_size: int = 1000, *args, **kwargs) -> None:
-        self.sort_method        = sort_method
-        self.subreddits_list    = subreddits_list
-        self.memory_queue       = deque(maxlen = len(subreddits_list) * memory_size)
-        self.reddit_api_object  = PrawInterface()
-        self.thread_lock_object = Lock()
+    def core_monitoring_loop_settings_method(self, sort_method: str, subreddit_attributes: list[dict], memory_size: int = 1000, *args, **kwargs) -> None:
+        self.sort_method          = sort_method
+        self.subreddit_attributes = subreddit_attributes
+        self.memory_queue         = deque(maxlen = len(subreddit_attributes) * memory_size)
+        self.reddit_api_object    = PrawInterface()
+        self.thread_lock_object   = Lock()
         self.reddit_api_object.praw_interface_settings_method(*args, **kwargs)
 
     async def __get_new_threads(self) -> list[dict | None]:
         loop = asyncio.get_running_loop()
         
         with ThreadPoolExecutor(max_workers = 4) as executor:
-            futures = [loop.run_in_executor(executor, self.reddit_api_object.get_latest_threads, subreddit, self.sort_method, self.memory_queue) for subreddit in self.subreddits_list]
+            futures = [loop.run_in_executor(executor, self.reddit_api_object.get_latest_threads, subreddit["subreddit_name"], self.sort_method, self.memory_queue) for subreddit in self.subreddits_list]
             results = await asyncio.gather(*futures)            
 
         return results
