@@ -7,6 +7,7 @@ from threading   import Lock
 
 from concurrent.futures                            import ThreadPoolExecutor
 from utilities.PrawInterface                       import PrawInterface
+from utilities.DiscordBot                          import DiscordBot
 from utilities.generic_functions.generic_functions import logger_initialization
 
 class CoreMonitoringLoop:
@@ -14,13 +15,15 @@ class CoreMonitoringLoop:
         self.current_date    = dt.datetime.now().strftime("%Y-%m-%d")
         self.data_log_object = logger_initialization(f"{self.current_date} Reddit Monitoring Bot.log", "Reddit monitoring operations")
 
-    def core_monitoring_loop_settings_method(self, sort_method: str, subreddit_attributes: list[dict], memory_size: int = 1000, *args, **kwargs) -> None:
+    def core_monitoring_loop_settings_method(self, sort_method: str, token_string: str, subreddit_attributes: list[dict], memory_size: int = 1000, **kwargs) -> None:
         self.sort_method          = sort_method
         self.subreddit_attributes = subreddit_attributes
         self.memory_queue         = deque(maxlen = len(subreddit_attributes) * memory_size)
         self.reddit_api_object    = PrawInterface()
+        self.discord_bot_object   = DiscordBot(token_string)
         self.thread_lock_object   = Lock()
-        self.reddit_api_object.praw_interface_settings_method(*args, **kwargs)
+        self.reddit_api_object.praw_interface_settings_method(**kwargs["praw_interface_settings_method"])
+        self.discord_bot_object.discord_bot_settings(**kwargs["discord_bot_settings"])
 
     async def __get_new_threads(self) -> list[dict | None]:
         loop = asyncio.get_running_loop()
@@ -33,6 +36,7 @@ class CoreMonitoringLoop:
         
     async def core_loop(self) -> None:
         event_loop_object = asyncio.get_running_loop()
+        self.discord_bot_object.discord_bot_initialization()
 
         while True:
             subreddit_threads = await self.__get_new_threads()
@@ -40,8 +44,10 @@ class CoreMonitoringLoop:
             if (any(subreddit_threads)):
                 for sub_dict in subreddit_threads:
                     if (sub_dict):
-                        new_threads = await event_loop_object.run_in_executor(None, self.reddit_api_object.get_latest_threads, sub_dict["subreddit"][2:], self.sort_method, self.memory_queue, 30)
-                        
+                        new_threads  = await event_loop_object.run_in_executor(None, self.reddit_api_object.get_latest_threads, sub_dict["subreddit"][2:], self.sort_method, self.memory_queue, 30)
+                        embed_object = self.discord_bot_object.embed_message(new_threads)
+                        self.discord_bot_object.embedding_object = embed_object
+
             await asyncio.sleep(60 * 2)
 
     @staticmethod

@@ -27,11 +27,23 @@ class PrawInterface:
                     "subreddit"      : f"r/{subreddit}",
                     "thread_url"     : f"https://www.reddit.com{thread.permalink}",
                     "thread_title"   : thread.title,
-                    "thread_content" : thread.selftext,
-                    "thread_author"  : thread.author.name
+                    "thread_content" : None if (not hasattr(thread, "selftext")) else thread.selftext,
+                    "thread_author"  : thread.author.name,
+                    "spoiler_yn"     : thread.spoiler,
+                    "preview_yn"     : None if (not hasattr(thread, "preview")) else thread.preview
                 }
             
             if ((fetch_size > 1) and (thread.permalink not in memory_bank)):
                 memory_bank.append(thread.permalink)
 
         return results_dictionary  
+    
+praw_instance = PrawInterface()
+praw_instance.praw_interface_settings_method("SUBREDDIT_CLIENT", "SUBREDDIT_SECRET", "SUBREDDIT_USER_AGENT", "brodmatty")
+thread_list = reversed(list(praw_instance.reddit_api_object.subreddit("oshinoko").new(limit = 30)))
+
+for thread in thread_list:
+    if (thread.permalink not in []):
+        print(thread.permalink)
+        print(thread.spoiler)
+        print(None if (not hasattr(thread, "preview")) else thread.preview)
