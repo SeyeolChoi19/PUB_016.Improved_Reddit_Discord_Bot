@@ -37,13 +37,3 @@ class PrawInterface:
                 memory_bank.append(thread.permalink)
 
         return results_dictionary  
-    
-praw_instance = PrawInterface()
-praw_instance.praw_interface_settings_method("SUBREDDIT_CLIENT", "SUBREDDIT_SECRET", "SUBREDDIT_USER_AGENT", "brodmatty")
-thread_list = reversed(list(praw_instance.reddit_api_object.subreddit("oshinoko").new(limit = 30)))
-
-for thread in thread_list:
-    if (thread.permalink not in []):
-        print(thread.permalink)
-        print(thread.spoiler)
-        print(None if (not hasattr(thread, "preview")) else thread.preview)

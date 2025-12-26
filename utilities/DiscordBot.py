@@ -21,7 +21,7 @@ class DiscordBot:
         return self.__embedding_object
     
     @embedding_object.setter
-    def set_embedding(self, embedding_object: discord.Embed):
+    def embedding_object(self, embedding_object: discord.Embed):
         self.__embedding_object = embedding_object
 
     @operation_indicator("Discord bot operation")
@@ -47,13 +47,13 @@ class DiscordBot:
         
         self.discord_client.run(self.__token_string)
             
-    def __add_embedding_attributes(preview_text: str, results_dictionary: dict, embedding_object: discord.Embed):
+    def __add_embedding_attributes(self, preview_text: str, results_dictionary: dict, embedding_object: discord.Embed):
         embedding_object.set_author(name = results_dictionary["subreddit"], url = f"https://www.reddit.com/{results_dictionary['subreddit']}/new")
         
         if (results_dictionary["thread_content"]):
             setattr(embedding_object, "description", preview_text)
         
-        if (not results_dictionary["preview_yn"]):
+        if (results_dictionary["preview_yn"]):
             embedding_object.set_image(url = results_dictionary["preview_yn"]["images"][0]["resolutions"][len(results_dictionary["preview_yn"]["images"][0]["resolutions"]) - 1]["url"])
 
         embedding_object.add_field(name = '', value = f"[Thread Link]({results_dictionary['thread_url']})")
@@ -64,7 +64,7 @@ class DiscordBot:
     def embed_message(self, results_dictionary: dict):
         temp_string  = f'{results_dictionary["thread_title"][0:200]}....'  if (len(results_dictionary["thread_title"]) >= 250) else results_dictionary["thread_title"]
         title_string = f"**{temp_string} (spoiler)**" if (results_dictionary["spoiler_yn"]) else f"**{temp_string}**"
-        preview_text = f"{results_dictionary["thread_content"][0:300]}...." if (len(results_dictionary["thread_content"]) > 300) else results_dictionary["thread_content"]
+        preview_text = f"{results_dictionary['thread_content'][0:300]}...." if (len(results_dictionary["thread_content"]) > 300) else results_dictionary["thread_content"]
         embed_object = discord.Embed(url = results_dictionary["thread_url"])
         embed_object.set_footer(text = f"Post by: /u/{results_dictionary['thread_author']}")
         setattr(embed_object, "title", title_string)
@@ -74,5 +74,5 @@ class DiscordBot:
     @operation_indicator("Sending embeddings")
     async def send_message(self):
         while True: 
-            if (self.__embedding_object == None):
+            if (self.__embedding_object != None):
                 await self.channel.send(embed = self.__embedding_object)

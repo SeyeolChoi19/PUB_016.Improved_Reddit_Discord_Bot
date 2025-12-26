@@ -23,13 +23,12 @@ class CoreMonitoringLoop:
         self.discord_bot_object   = DiscordBot(token_string)
         self.thread_lock_object   = Lock()
         self.reddit_api_object.praw_interface_settings_method(**kwargs["praw_interface_settings_method"])
-        self.discord_bot_object.discord_bot_settings(**kwargs["discord_bot_settings"])
 
     async def __get_new_threads(self) -> list[dict | None]:
         loop = asyncio.get_running_loop()
         
         with ThreadPoolExecutor(max_workers = 4) as executor:
-            futures = [loop.run_in_executor(executor, self.reddit_api_object.get_latest_threads, subreddit["subreddit_name"], self.sort_method, self.memory_queue) for subreddit in self.subreddits_list]
+            futures = [loop.run_in_executor(executor, self.reddit_api_object.get_latest_threads, subreddit["subreddit_name"], self.sort_method, self.memory_queue) for subreddit in self.subreddit_attributes]
             results = await asyncio.gather(*futures)            
 
         return results
