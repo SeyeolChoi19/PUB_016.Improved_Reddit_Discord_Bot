@@ -34,4 +34,4 @@ class PrawInterface:
             if ((fetch_size > 1) and (thread.permalink not in memory_bank)):
                 memory_bank.append(thread.permalink)
 
-        return results_dictionary 
+        return results_dictionary  

@@ -41,8 +41,7 @@ class CoreMonitoringLoop:
                 for sub_dict in subreddit_threads:
                     if (sub_dict):
                         new_threads = await event_loop_object.run_in_executor(None, self.reddit_api_object.get_latest_threads, sub_dict["subreddit"][2:], self.sort_method, self.memory_queue, 30)
-                        # Insert discord bot program here
-
+                        
             await asyncio.sleep(60 * 2)
 
     @staticmethod
